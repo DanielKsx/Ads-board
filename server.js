@@ -17,6 +17,7 @@ const app = express();
 
 
 app.use(express.json());
+app.use(express.static('public'));
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, store: MongoStore.create({ mongoUrl: process.env.DB_URL }) }));
 app.use('/api/ads', adsRoutes);
 app.use('/auth', authRoutes);

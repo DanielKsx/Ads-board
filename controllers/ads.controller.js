@@ -37,7 +37,7 @@ module.exports.createAd = async (req, res) => {
         const newAd = new AdModel({
             title: req.body.title,
             content: req.body.content,
-            image: req.body.image,
+            image: req.file ? `/uploads/${req.file.filename}` : null,
             location: req.body.location,
             price: req.body.price,
             seller: req.session.user.id,
