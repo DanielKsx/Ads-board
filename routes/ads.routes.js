@@ -8,7 +8,7 @@ router.get('/', getAllAds);
 router.get('/search/:searchPhrase', searchAds);
 router.get('/:id', getAdById);
 router.post('/', authMiddleware, upload.single('image'), createAd);
-router.put('/:id', authMiddleware, updateAd);
+router.put('/:id', authMiddleware, upload.single('image'), updateAd);
 router.delete('/:id', authMiddleware, deleteAd);
 
 

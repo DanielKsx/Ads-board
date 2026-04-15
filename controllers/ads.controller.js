@@ -1,4 +1,5 @@
 const AdModel = require('../models/Ad.model');
+const removeFile = require('../utils/removeFile');
 
 module.exports.getAllAds = async (req, res) => {
     try {
@@ -23,8 +24,7 @@ module.exports.getAdById = async (req, res) => {
     try {
         const ad = await AdModel.findById(req.params.id).populate('seller')
         if (!ad) {
-            res.status(404).json({ message: 'Ad not found' });
-            return;
+            return res.status(404).json({ message: 'Ad not found' });
         }
         res.json(ad)
     } catch (err) {
@@ -54,15 +54,18 @@ module.exports.updateAd = async (req, res) => {
     try {
         const ad = await AdModel.findById(req.params.id)
         if (!ad) {
-            res.status(404).json({ message: 'Ad not found' });
-            return;
+            return res.status(404).json({ message: 'Ad not found' });
+
         }
         if (ad.seller.toString() !== req.session.user.id) {
             return res.status(403).json({ message: 'Forbidden' });
         }
+        if (req.file) {
+            removeFile(ad.image);
+            ad.image = `/uploads/${req.file.filename}`;
+        }
         ad.title = req.body.title;
         ad.content = req.body.content;
-        ad.image = req.body.image;
         ad.location = req.body.location;
         ad.price = req.body.price;
         const updatedAd = await ad.save();
@@ -76,12 +79,13 @@ module.exports.deleteAd = async (req, res) => {
     try {
         const ad = await AdModel.findById(req.params.id)
         if (!ad) {
-            res.status(404).json({ message: 'Ad not found' });
-            return;
+            return res.status(404).json({ message: 'Ad not found' });
         }
         if (ad.seller.toString() !== req.session.user.id) {
             return res.status(403).json({ message: 'Forbidden' });
         }
+        removeFile(ad.image);
+
         await ad.deleteOne()
         res.json({ message: 'Ad deleted' })
     } catch (err) {

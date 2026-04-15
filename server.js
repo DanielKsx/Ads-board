@@ -1,10 +1,12 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const adsRoutes = require('./routes/ads.routes');
-const authRoutes = require('./routes/auth.routes');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
+
+const adsRoutes = require('./routes/ads.routes');
+const authRoutes = require('./routes/auth.routes');
+const errorHandler = require('./middleware/error.middleware');
 
 require('./models/Ad.model');
 require('./models/User.model');
@@ -25,7 +27,7 @@ app.use('/auth', authRoutes);
 app.get('/api/test', (req, res) => {
     res.send({ message: "test" })
 });
-
+app.use(errorHandler);
 
 mongoose.connect(process.env.DB_URL)
     .then(() => {
