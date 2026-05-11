@@ -1,0 +1,21 @@
+
+Fullstack CRUD application for posting ads.
+
+## Tech stack
+- React
+- Vite
+- Express
+- MongoDB
+- Mongoose
+- Bootstrap
+
+## Features
+- Authentication
+- Sessions
+- Add/Edit/Delete ads
+- Search
+- Image uploads
+- User ownership
+
+## Live
+(https://ads-board-2.onrender.com)
