@@ -3,7 +3,8 @@ const bcrypt = require('bcryptjs');
 
 module.exports.register = async (req, res) => {
     try {
-        const { login, password, avatar, phone } = req.body;
+        const { login, password, phone } = req.body;
+        const avatar = req.file ? `/uploads/${req.file.filename}` : null;
         const user = await User.findOne({ login });
         if (user) {
             return res.status(400).json({ message: 'User already exists' })
