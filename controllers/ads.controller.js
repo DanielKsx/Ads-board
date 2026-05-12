@@ -1,6 +1,30 @@
 const AdModel = require('../models/Ad.model');
 const removeFile = require('../utils/removeFile');
 
+const validateAdFields = ({ title, content, price, location }) => {
+    if (!title || !content || !price || !location) {
+        return 'Missing required fields';
+    }
+
+    if (title.trim().length < 10 || title.trim().length > 50) {
+        return 'Title must be between 10 and 50 characters';
+    }
+
+    if (content.trim().length < 20 || content.trim().length > 1000) {
+        return 'Content must be between 20 and 1000 characters';
+    }
+
+    if (isNaN(Number(price)) || Number(price) <= 0) {
+        return 'Price must be a number greater than 0';
+    }
+
+    return null;
+};
+
+const escapeRegex = (text) => {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 module.exports.getAllAds = async (req, res) => {
     try {
         const ads = await AdModel.find().sort({ date: -1 }).populate('seller', 'login avatar phone');
@@ -12,7 +36,7 @@ module.exports.getAllAds = async (req, res) => {
 
 module.exports.searchAds = async (req, res) => {
     try {
-        const search = req.params.searchPhrase;
+        const search = escapeRegex(req.params.searchPhrase);
         const ads = await AdModel.find({
             title: { $regex: search, $options: 'i' }
         }).sort({ date: -1 }).populate('seller');
@@ -37,23 +61,12 @@ module.exports.getAdById = async (req, res) => {
 
 module.exports.createAd = async (req, res) => {
     const { title, content, price, location } = req.body;
+    const validationError = validateAdFields(req.body);
+    if (validationError) {
+        if (req.file) removeFile(`/uploads/${req.file.filename}`);
+        return res.status(400).json({ message: validationError });
+    }
 
-    if (!title || !content || !price || !location) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-    if (title.trim().length < 10 || title.trim().length > 50) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Title must be between 10 and 50 characters' });
-    }
-    if (content.trim().length < 20 || content.trim().length > 1000) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Content must be between 20 and 1000 characters' });
-    }
-    if (isNaN(Number(price)) || Number(price) <= 0) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Price must be a number greater than 0' });
-    }
     if (!req.file) {
         return res.status(400).json({ message: 'Image is required' });
     }
@@ -78,23 +91,12 @@ module.exports.createAd = async (req, res) => {
 
 module.exports.updateAd = async (req, res) => {
     const { title, content, price, location } = req.body;
+    const validationError = validateAdFields(req.body);
+    if (validationError) {
+        if (req.file) removeFile(`/uploads/${req.file.filename}`);
+        return res.status(400).json({ message: validationError });
+    }
 
-    if (!title || !content || !price || !location) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-    if (title.trim().length < 10 || title.trim().length > 50) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Title must be between 10 and 50 characters' });
-    }
-    if (content.trim().length < 20 || content.trim().length > 1000) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Content must be between 20 and 1000 characters' });
-    }
-    if (isNaN(Number(price)) || Number(price) <= 0) {
-        if (req.file) removeFile(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ message: 'Price must be a number greater than 0' });
-    }
     try {
         const ad = await AdModel.findById(req.params.id);
 

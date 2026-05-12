@@ -5,6 +5,16 @@ module.exports.register = async (req, res) => {
     try {
         const { login, password, phone } = req.body;
         const avatar = req.file ? `/uploads/${req.file.filename}` : null;
+        if (!login || !password || !phone) {
+            return res.status(400).json({
+                message: 'Login, password and phone are required'
+            });
+        }
+        if (!avatar) {
+            return res.status(400).json({
+                message: 'Avatar is required'
+            });
+        }
         const user = await User.findOne({ login });
         if (user) {
             return res.status(400).json({ message: 'User already exists' })

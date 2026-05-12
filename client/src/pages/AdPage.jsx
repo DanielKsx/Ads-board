@@ -6,6 +6,7 @@ const AdPage = ({ user }) => {
     const { id } = useParams();
     const [ad, setAd] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleDelete = () => {
@@ -14,8 +15,16 @@ const AdPage = ({ user }) => {
             credentials: 'include'
         })
 
-            .then(() => {
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(data => {
+                        throw new Error(data.message || 'Delete Failed');
+                    });
+                }
                 navigate('/');
+            })
+            .catch(err => {
+                setError(err.message);
             });
     };
 
@@ -36,6 +45,11 @@ const AdPage = ({ user }) => {
 
     return (
         <div className="container mt-4">
+            {error && (
+                <div className="alert alert-danger">
+                    {error}
+                </div>
+            )}
             <div className="row">
                 <div className="col-12 col-md-6">
                     {ad.image && (
